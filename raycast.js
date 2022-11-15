@@ -88,7 +88,6 @@ class Player {    // Player class
 
     update()    // Player Input Update
     {
-        console.log("hello world");
         this.rotationAngle += this.turnDirection * this.rotationSpeed; // Update player rotation
         var moveStep = this.walkDirection * this.moveSpeed; 
 
