@@ -150,7 +150,9 @@ class Ray {
         /////////////////////////////////////////
         ///////////  HORIZONTAL RAYGRID INTERSECT 
         /////////////////////////////////////////
-        // TO DO
+        var foundHorzWallHit = false;
+        var wallHitX = 0;
+        var wallHitY = 0;
 
        // Find the y-coordinate of the cloest horizontal grid intersections
         yintercept = Math.floor(player.y / TILE_SIZE) * TILE_SIZE;
@@ -165,6 +167,36 @@ class Ray {
         xstep = TILE_SIZE / Math.tan(this.rayAngle);
         xstep *= (this.isRayFacingLeft && xstep > 0) ? -1 : 1;
         xstep *= (this.isRayFacingRight && xstep <0) ? -1 : 1;
+
+        var nextHorzTouchX = xintercept;
+        var nextHorzTouchY = yintercept;
+
+        if (this.isRayFacingUp)
+        
+            nextHorzTouchY--;
+
+        // Increment xstep and ystep until we find a wall
+        while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY < WINDOW_HEIGHT) {
+
+            if (grid.hasWallAt(nextHorzTouchX, nextHorzTouchY)) {
+            foundHorzWallHit = true;
+            wallHitX = nextHorzTouchX;
+            wallHitY = nextHorzTouchY;
+
+            stroke("red");
+            line(player.x, player.y, wallHitX, wallHitY);
+
+
+            break;
+            }else {
+
+                nextHorzTouchX += xstep;
+                nextHorzTouchY += ystep;
+            }
+        }
+        
+
+
 
 
     }
@@ -274,6 +306,8 @@ function draw() {  //  Render to screen
         ray.render();
     }
     player.render();
+    castAllRays();
+
 
 }
 
