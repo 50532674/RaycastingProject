@@ -11,7 +11,7 @@ const FOV_ANGLE = 60 * (Math.PI / 180);  // 60 degress converted to Radians.
 const WALL_STRIP_WIDTH = 1;  // Denistry of Rays
 const NUM_RAYS = WINDOW_WIDTH / WALL_STRIP_WIDTH;
 
-
+const MINIMAP_SCALE_FACTOR = 0.2;
 
 class Map {     // The Map. 1 is Walls. 0 is empty space for player movement
     constructor()
@@ -63,7 +63,11 @@ class Map {     // The Map. 1 is Walls. 0 is empty space for player movement
                 var tileColor = this.grid[i][j] == 1 ? "#222" : "#fff";
                 stroke("#222");
                 fill(tileColor);
-                rect(tileX, tileY, TILE_SIZE, TILE_SIZE);
+                rect(
+                    MINIMAP_SCALE_FACTOR * tileX,
+                    MINIMAP_SCALE_FACTOR * tileY, 
+                    MINIMAP_SCALE_FACTOR * TILE_SIZE,
+                    MINIMAP_SCALE_FACTOR * TILE_SIZE);
             }
         }
     }
@@ -112,13 +116,16 @@ class Player {    // Player class
     render() {   // Draw the direction the player is facing.
         noStroke();
         fill("red");
-        circle(this.x, this.y, this.radius);
+        circle( 
+            MINIMAP_SCALE_FACTOR * this.x, 
+            MINIMAP_SCALE_FACTOR * this.y,
+            MINIMAP_SCALE_FACTOR * this.radius);
         stroke("red");
         line(
-            this.x,
-            this.y,
-            this.x + Math.cos(this.rotationAngle) * 20, 
-            this.y + Math.sin(this.rotationAngle) * 30,
+            MINIMAP_SCALE_FACTOR * this.x,
+            MINIMAP_SCALE_FACTOR * this.y,
+            MINIMAP_SCALE_FACTOR * this.x + Math.cos(this.rotationAngle) * 20, 
+            MINIMAP_SCALE_FACTOR * this.y + Math.sin(this.rotationAngle) * 30,
              
              );
     }
@@ -253,10 +260,11 @@ class Ray {
     render()  // Render the rays
     {
         stroke("rgba(255, 0, 0, 0.3)"); // Ray Colour
-        line(player.x,
-             player.y,
-             this.wallHitX,
-             this.wallHitY
+        line(
+            MINIMAP_SCALE_FACTOR * player.x,
+            MINIMAP_SCALE_FACTOR * player.y,
+            MINIMAP_SCALE_FACTOR * this.wallHitX,
+            MINIMAP_SCALE_FACTOR * this.wallHitY
 
 
             // player.x + Math.cos(this.rayAngle) * 30,
@@ -327,6 +335,53 @@ function castAllRays()
 
 }
 
+function render3DProjectedWalls() {
+    // loop every ray in the array
+    for (var i = 0; i < NUM_RAYS; i++)
+    {
+        var ray = rays[i];
+        var rayDistance = ray.distance;
+
+        // calculate the distance to the projection plane
+        var distanceProjectionPlane = (WINDOW_WIDTH / 2 ) / Math.tan(FOV_ANGLE / 2);
+
+        // Projected Wall Height; 
+        var wallStripHeight = (TILE_SIZE / rayDistance) * distanceProjectionPlane;
+
+        fill("rgba(255, 255, 255, 1.0)");
+        noStroke();
+        rect(
+            i * WALL_STRIP_WIDTH, 
+            (WINDOW_HEIGHT / 2) - (wallStripHeight / 2 ),
+            WALL_STRIP_WIDTH,
+            wallStripHeight
+
+        )
+    }
+
+
+}
+
+function RenderBox() {
+    
+        fill("rgba(55, 155, 51, 1.0)");
+        noStroke();
+        rect(
+            WINDOW_HEIGHT / 2, 
+            WINDOW_WIDTH / 2,
+            100,
+            65
+
+
+        );
+    }
+
+
+
+
+  
+
+
 function normalizeAngle(angle) {
     angle = angle % (2 * Math.PI);  // Do not go beyond 2pi. 
     if (angle < 0 )
@@ -356,13 +411,17 @@ function update()   // The game Loop
 
 function draw() {  //  Render to screen
 
+    clear("212121");
+    RenderBox();
     update();
+    render3DProjectedWalls();
     grid.render();
     for (ray of rays) 
     {
         ray.render();
     }
     player.render();
+
     
 
 
