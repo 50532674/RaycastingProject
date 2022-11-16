@@ -332,6 +332,8 @@ function castAllRays()
         columnId++;
     }
 
+    
+
 
 }
 
