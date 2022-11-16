@@ -281,7 +281,7 @@ class Ray {
 
 var grid = new Map();
 var player = new Player();
-var rays = []; // Array
+var rays = []; // Storing the rays 
 
 function keyPressed() {   // p5 key input detection
     if (keyCode == UP_ARROW){
@@ -340,15 +340,19 @@ function render3DProjectedWalls() {
     for (var i = 0; i < NUM_RAYS; i++)
     {
         var ray = rays[i];
-        var rayDistance = ray.distance;
+        var correctWallDistance = ray.distance * Math.cos(ray.rayAngle - player.rotationAngle) // To sort fish eye effect
 
         // calculate the distance to the projection plane
         var distanceProjectionPlane = (WINDOW_WIDTH / 2 ) / Math.tan(FOV_ANGLE / 2);
 
         // Projected Wall Height; 
-        var wallStripHeight = (TILE_SIZE / rayDistance) * distanceProjectionPlane;
+        var wallStripHeight = (TILE_SIZE / correctWallDistance) * distanceProjectionPlane;
 
-        fill("rgba(255, 255, 255, 1.0)");
+        // work out the transparency based on wall distance
+        var alpha = 170 / correctWallDistance;
+
+        //render a rect with the calculated wall height
+        fill("rgba(255, 255, 255, " + alpha + ")");
         noStroke();
         rect(
             i * WALL_STRIP_WIDTH, 
@@ -362,19 +366,6 @@ function render3DProjectedWalls() {
 
 }
 
-function RenderBox() {
-    
-        fill("rgba(55, 155, 51, 1.0)");
-        noStroke();
-        rect(
-            WINDOW_HEIGHT / 2, 
-            WINDOW_WIDTH / 2,
-            100,
-            65
-
-
-        );
-    }
 
 
 
@@ -412,7 +403,6 @@ function update()   // The game Loop
 function draw() {  //  Render to screen
 
     clear("212121");
-    RenderBox();
     update();
     render3DProjectedWalls();
     grid.render();
